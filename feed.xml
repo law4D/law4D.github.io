@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Law4D Blog</title>
+    <description>关于程序与设计、黑客与画家 | Law4D，Binary &amp; Security，Software Engineer| 这里是 @Law4D 的个人博客。</description>
+    <link>https://Law4D.github.io/</link>
+    <atom:link href="https://Law4D.github.io/feed.xml" rel="self" type="application/rss+xml" />
+    <pubDate>Sat, 08 Feb 2020 17:37:29 +0800</pubDate>
+    <lastBuildDate>Sat, 08 Feb 2020 17:37:29 +0800</lastBuildDate>
+    <generator>Jekyll v4.0.0</generator>
+    
+      <item>
+        <title>Github Pages 博客搭建</title>
+        <description>&lt;p&gt;&lt;a href=&quot;https://pages.github.com&quot;&gt;Github Pages&lt;/a&gt;是Github免费提供的静态网站托管服务，不需要任何后端语言来支持。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;仓库空间不大于1G&lt;/li&gt;
+  &lt;li&gt;每个月的流量不超过100G&lt;/li&gt;
+  &lt;li&gt;每小时更新不超过 10 次&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;本文主要介绍如何使用Jekyll搭建个人Github Pages。&lt;/p&gt;
+
+&lt;h1 id=&quot;jekyll是什么&quot;&gt;Jekyll是什么？&lt;/h1&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;Jekyll 是一个简单的博客形态的静态站点生产机器。它有一个模版目录，其中包含原始文本格式的文档，通过一个转换器（如 Markdown）和我们的 Liquid 渲染器转化成一个完整的可发布的静态网站，你可以发布在任何你喜爱的服务器上。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;选择Jekyll后，可以更加专注于博客内容本身，把网页排版交给Jekyll完成 :P&lt;/p&gt;
+
+&lt;h1 id=&quot;更新ruby&quot;&gt;更新Ruby&lt;/h1&gt;
+
+&lt;p&gt;首先查看ruby的版本，本文安装的jekyll 4.0.0要求ruby版本2.4.0以上。&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;ruby &lt;span class=&quot;nt&quot;&gt;-v&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;如果版本低于2.4.0，需要先更新ruby版本。这里我们可以使用RVM进行ruby的版本管理和更新。&lt;/p&gt;
+
+&lt;h3 id=&quot;安装rvm&quot;&gt;安装RVM&lt;/h3&gt;
+
+&lt;p&gt;本文采用的是离线安装RVM，上Github下载&lt;a href=&quot;https://github.com/rvm/rvm.git&quot;&gt;RVM&lt;/a&gt;。&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;git clone https://github.com/rvm/rvm.git rvm
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cd &lt;/span&gt;rvm/bin
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;./rvm-installer
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;安装好之后在.bash_profile最后追加&lt;/p&gt;
+
+&lt;p&gt;export PATH=$PATH:/Users/xxx/.rvm/&lt;/p&gt;
+
+&lt;p&gt;其中xxx为当前用户名&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; ~/
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;vi .bash_profile
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;source&lt;/span&gt; ~/.bash_profile
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;到此RVM安装完成。&lt;/p&gt;
+
+&lt;h3 id=&quot;安装ruby-240&quot;&gt;安装ruby 2.4.0&lt;/h3&gt;
+
+&lt;p&gt;列出可安装的ruby版本，并安装满足条件的ruby&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;rvm list known
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;ruby-]1.8.6[-p420]
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;ruby-]1.8.7[-head] &lt;span class=&quot;c&quot;&gt;# security released on head&lt;/span&gt;
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;ruby-]1.9.1[-p431]
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;ruby-]1.9.2[-p330]
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;ruby-]1.9.3[-p551]
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;ruby-]2.0.0[-p648]
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;ruby-]2.1[.10]
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;ruby-]2.2[.10]
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;ruby-]2.3[.8]
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;ruby-]2.4[.9]
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;ruby-]2.5[.7]
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;ruby-]2.6[.5]
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;ruby-]2.7[.0]
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;rvm &lt;span class=&quot;nb&quot;&gt;install &lt;/span&gt;2.4
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;然后等待漫长的安装过程，因为可能需要许多依赖包，因此时间有点长。最后检查是否安装完成。&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;ruby &lt;span class=&quot;nt&quot;&gt;-v&lt;/span&gt;
+ruby 2.4.9p362 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;2019-10-02 revision 67824&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h1 id=&quot;安装jekyll&quot;&gt;安装Jekyll&lt;/h1&gt;
+
+&lt;p&gt;至此，可以开始安装Jekyll，如果在OSX平台上，可以直接输入&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;gem &lt;span class=&quot;nb&quot;&gt;install &lt;/span&gt;jekyll
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;最后等着安装完成。最后编译博客的工具安装完成！🎉&lt;/p&gt;
+
+&lt;h1 id=&quot;建立一个测试样例&quot;&gt;建立一个测试样例&lt;/h1&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;jekyll new myblog
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;tree myblog/
+myblog/
+├── 404.html
+├── Gemfile
+├── Gemfile.lock
+├── _config.yml
+├── _posts
+│   └── 2020-02-08-welcome-to-jekyll.markdown
+├── about.markdown
+└── index.markdown
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;在线运行，热修改可以使用&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;jekyll serve
+  Server address: http://127.0.0.1:4000/
+  Server running... press ctrl-c to stop.
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h1 id=&quot;github-pages&quot;&gt;Github Pages&lt;/h1&gt;
+
+&lt;p&gt;去Github主页建立一个新的repository，命名为username.github.io，username为用户ID。&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;git clone https://github.com/law4D/law4D.github.io.git law4D.github.io
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cd &lt;/span&gt;myblog
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;jekyll build &lt;span class=&quot;nt&quot;&gt;-d&lt;/span&gt; ../law4D.github.io
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; ../law4D.github.io
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;git add &lt;span class=&quot;nt&quot;&gt;--all&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;git commit &lt;span class=&quot;nt&quot;&gt;-m&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;first commit&quot;&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;git push &lt;span class=&quot;nt&quot;&gt;-u&lt;/span&gt; origin master
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+</description>
+        <pubDate>Sat, 08 Feb 2020 20:12:00 +0800</pubDate>
+        <link>https://Law4D.github.io/2020/02/08/installer_githubPages/</link>
+        <guid isPermaLink="true">https://Law4D.github.io/2020/02/08/installer_githubPages/</guid>
+        
+        <category>安装笔记</category>
+        
+        <category>MISC</category>
+        
+        
+      </item>
+    
+  </channel>
+</rss>
