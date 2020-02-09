@@ -5,9 +5,53 @@
     <description>关于程序与设计、黑客与画家 | Law4D，Binary &amp; Security，Software Engineer| 这里是 @Law4D 的个人博客。</description>
     <link>https://Law4D.github.io/</link>
     <atom:link href="https://Law4D.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Sat, 08 Feb 2020 17:37:29 +0800</pubDate>
-    <lastBuildDate>Sat, 08 Feb 2020 17:37:29 +0800</lastBuildDate>
+    <pubDate>Sun, 09 Feb 2020 11:51:32 +0800</pubDate>
+    <lastBuildDate>Sun, 09 Feb 2020 11:51:32 +0800</lastBuildDate>
     <generator>Jekyll v4.0.0</generator>
+    
+      <item>
+        <title>Windows Server 2012 R2安装VC++2015运行库</title>
+        <description>&lt;p&gt;最近需要在Windows Server 2012 R12上搭建某程序的运行环境，遇到缺失MSVCP140.dll问题，现总结如下：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;MSVCP140.dll缺失，安装&lt;a href=&quot;https://www.microsoft.com/en-us/download/details.aspx?id=48145&quot;&gt;VC++2015运行库&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;MSVCP120.dll缺失，安装VC++2013运行库&lt;/li&gt;
+  &lt;li&gt;MSVCP110.dll缺失，安装VC++2012运行库&lt;/li&gt;
+  &lt;li&gt;MSVCP100.dll缺失，安装VC++2010运行库&lt;/li&gt;
+  &lt;li&gt;MSVCP90.dll缺失，安装VC++2008运行库&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;本以为问题如此简单，准备结束🎉时，结果安装VC++2015运行库时出现了问题。&lt;/p&gt;
+
+&lt;p&gt;0x80240017 - 未指定错误。&lt;/p&gt;
+
+&lt;h1 id=&quot;vc2015运行库安装&quot;&gt;VC++2015运行库安装&lt;/h1&gt;
+
+&lt;p&gt;查看日志，发现&lt;/p&gt;
+
+&lt;p&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;Windows8.1-KB2999226-x64.msu Failed to execute MSU package&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;老老实实打开目录手动安装Windows8.1-KB2999226-x64，提示不适合此计算机。查询之后，提示需要先打上&lt;a href=&quot;https://www.microsoft.com/en-us/download/details.aspx?id=42334&quot;&gt;KB2919355补丁&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;安装kb2919355补丁&quot;&gt;安装KB2919355补丁&lt;/h2&gt;
+
+&lt;p&gt;访问microsoft官网下载，安装，依然不适合此计算机，再次查询，提示安装&lt;a href=&quot;https://www.microsoft.com/en-us/download/details.aspx?id=42334&quot;&gt;KB2919355补丁&lt;/a&gt;补丁需要先打上&lt;a href=&quot;https://www.microsoft.com/zh-cn/download/details.aspx?id=42153&quot;&gt;KB2919442&lt;/a&gt;。俄罗斯套娃? :(&lt;/p&gt;
+
+&lt;h2 id=&quot;安装kb2919442补丁&quot;&gt;安装KB2919442补丁&lt;/h2&gt;
+
+&lt;p&gt;下载安装KB2919442补丁，安装成功，return上一步，最终安装VC++2015运行库成功。完毕🤓&lt;/p&gt;
+
+</description>
+        <pubDate>Sun, 09 Feb 2020 08:12:00 +0800</pubDate>
+        <link>https://Law4D.github.io/2020/02/09/installer_vcredist/</link>
+        <guid isPermaLink="true">https://Law4D.github.io/2020/02/09/installer_vcredist/</guid>
+        
+        <category>安装笔记</category>
+        
+        <category>MISC</category>
+        
+        
+      </item>
     
       <item>
         <title>Github Pages 博客搭建</title>
