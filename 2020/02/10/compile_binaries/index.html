@@ -11,28 +11,30 @@
     <meta name="theme-color" content="#000000">
     
     <!-- Open Graph -->
-    <meta property="og:title" content="Windows Server 2012 R2安装VC++2015运行库 - Law4D的博客 | Law4D Blog">
+    <meta property="og:title" content="各种测试小程序编译(1) - Law4D的博客 | Law4D Blog">
     
     <meta property="og:type" content="article">
-    <meta property="og:description" content="最近需要在Windows Server 2012 R12上搭建某程序的运行环境，遇到缺失MSVCP140.dll问题，现总结如下：
+    <meta property="og:description" content="在程序分析时需要用到许多开源测试程序，本文主要介绍一些开源程序的编译和安装。
 ">
     
-    <meta property="article:published_time" content="2020-02-09T08:12:00Z">
+    <meta property="article:published_time" content="2020-02-10T16:00:00Z">
     
     
     <meta property="article:author" content="Law4D">
     
     
+    <meta property="article:tag" content="测试程序">
+    
     <meta property="article:tag" content="安装笔记">
     
-    <meta property="article:tag" content="MISC">
+    <meta property="article:tag" content="交叉编译">
     
     
     <meta property="og:image" content="https://Law4D.github.io/img/avator-law.png">
-    <meta property="og:url" content="https://Law4D.github.io/2020/02/09/installer_vcredist/">
+    <meta property="og:url" content="https://Law4D.github.io/2020/02/10/compile_binaries/">
     <meta property="og:site_name" content="Law4D的博客 | Law4D Blog">
     
-    <title>Windows Server 2012 R2安装VC++2015运行库 - Law4D的博客 | Law4D Blog</title>
+    <title>各种测试小程序编译(1) - Law4D的博客 | Law4D Blog</title>
 
     <!-- Web App Manifest -->
     <link rel="manifest" href="/pwa/manifest.json">
@@ -41,7 +43,7 @@
     <link rel="shortcut icon" href="/img/favicon.ico">
     
     <!-- Canonical URL -->
-    <link rel="canonical" href="https://Law4D.github.io/2020/02/09/installer_vcredist/">
+    <link rel="canonical" href="https://Law4D.github.io/2020/02/10/compile_binaries/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -177,7 +179,7 @@
 
     <!-- Image to hack wechat -->
 <!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
-<!-- <img src="/img/home-bg.jpg" width="0" height="0"> -->
+<!-- <img src="/img/post-bg-infinity.jpg" width="0" height="0"> -->
 
 <!-- Post Header -->
 
@@ -186,7 +188,7 @@
 <style type="text/css">
     header.intro-header{
         position: relative;
-        background-image: url('/img/home-bg.jpg');
+        background-image: url('/img/post-bg-infinity.jpg');
         background: ;
     }
 
@@ -203,15 +205,17 @@
                 <div class="post-heading">
                     <div class="tags">
                         
+                        <a class="tag" href="/archive/?tag=%E6%B5%8B%E8%AF%95%E7%A8%8B%E5%BA%8F" title="测试程序">测试程序</a>
+                        
                         <a class="tag" href="/archive/?tag=%E5%AE%89%E8%A3%85%E7%AC%94%E8%AE%B0" title="安装笔记">安装笔记</a>
                         
-                        <a class="tag" href="/archive/?tag=MISC" title="MISC">MISC</a>
+                        <a class="tag" href="/archive/?tag=%E4%BA%A4%E5%8F%89%E7%BC%96%E8%AF%91" title="交叉编译">交叉编译</a>
                         
                     </div>
-                    <h1>Windows Server 2012 R2安装VC++2015运行库</h1>
+                    <h1>各种测试小程序编译(1)</h1>
                     
-                    <h2 class="subheading">Windows运行环境安装</h2>
-                    <span class="meta">Posted by Law4D on February 9, 2020</span>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">Posted by Law4D on February 10, 2020</span>
                 </div>
             </div>
         </div>
@@ -237,35 +241,128 @@
                 <!-- Multi-Lingual -->
                 
 
-				<p>最近需要在Windows Server 2012 R12上搭建某程序的运行环境，遇到缺失MSVCP140.dll问题，现总结如下：</p>
+				<p>在程序分析时需要用到许多开源测试程序，本文主要介绍一些开源程序的编译和安装。</p>
+
+<h2 id="0x0-binutils">0x0. Binutils</h2>
+
+<blockquote>
+  <p>The GNU Binutils are a collection of binary tools.</p>
+</blockquote>
 
 <ul>
-  <li>MSVCP140.dll缺失，安装<a href="https://www.microsoft.com/en-us/download/details.aspx?id=48145">VC++2015运行库</a></li>
-  <li>MSVCP120.dll缺失，安装VC++2013运行库</li>
-  <li>MSVCP110.dll缺失，安装VC++2012运行库</li>
-  <li>MSVCP100.dll缺失，安装VC++2010运行库</li>
-  <li>MSVCP90.dll缺失，安装VC++2008运行库</li>
+  <li><a href="http://ftp.gnu.org/gnu/binutils">下载地址</a></li>
+  <li><a href="http://www.gnu.org/software/binutils/">官网地址</a></li>
 </ul>
 
-<p>本以为问题如此简单，准备结束🎉时，结果安装VC++2015运行库时出现了问题。</p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="nv">$ </span>curl <span class="nt">-O</span> <span class="s2">"https://mirrors.syringanetworks.net/gnu/binutils/binutils-2.34.tar.xz"</span>
+<span class="nv">$ </span><span class="nb">tar</span> <span class="nt">-xvf</span> binutils-2.34.tar.xz
+<span class="nv">$ </span><span class="nb">cd </span>binutils-2.34
+<span class="nv">$ </span>./configure <span class="nv">CFLAGS</span><span class="o">=</span><span class="s2">"-O0"</span> <span class="nv">CC</span><span class="o">=</span>aarch64-linux-gnu-gcc-5 <span class="nv">AR</span><span class="o">=</span>aarch64-linux-gnu-ar <span class="nt">--host</span><span class="o">=</span>aarch64-linux <span class="nt">--prefix</span><span class="o">=</span><span class="nv">$PWD</span>/install <span class="nv">CXXFLAGS</span><span class="o">=</span><span class="s2">"-O0"</span> <span class="nv">CXX</span><span class="o">=</span>aarch64-linux-gnu-g++-5
+<span class="nv">$ </span>make <span class="nt">-j4</span> <span class="o">&amp;&amp;</span> make <span class="nb">install</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>所示为，交叉编译到Aarch64系统👽</p>
 
-<p>0x80240017 - 未指定错误。</p>
+<h2 id="0x1-bison">0x1. Bison</h2>
 
-<h1 id="vc2015运行库安装">VC++2015运行库安装</h1>
+<blockquote>
+  <p>Bison is a general-purpose parser generator that converts an annotated context-free grammar into a deterministic LR or generalized LR (GLR) parser employing LALR(1) parser tables.</p>
+</blockquote>
 
-<p>查看日志，发现</p>
+<ul>
+  <li><a href="https://ftp.gnu.org/gnu/bison/">下载地址</a></li>
+  <li><a href="http://www.gnu.org/software/bison/">官网地址</a></li>
+</ul>
 
-<p><code class="highlighter-rouge">Windows8.1-KB2999226-x64.msu Failed to execute MSU package</code></p>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="nv">$ </span>curl <span class="nt">-O</span> <span class="s2">"http://gnu.spinellicreations.com/bison/bison-3.5.tar.xz"</span>
+<span class="nv">$ </span><span class="nb">tar</span> <span class="nt">-xvf</span> bison-3.5.tar.xz
+<span class="nv">$ </span><span class="nb">cd </span>bison-3.5
+<span class="nv">$ </span>./configure <span class="nv">CFLAGS</span><span class="o">=</span><span class="s2">"-O0"</span> <span class="nv">CC</span><span class="o">=</span>mips64-linux-gnuabi64-gcc-5 <span class="nv">AR</span><span class="o">=</span>mips64-linux-gnuabi64-ar <span class="nt">--host</span><span class="o">=</span>mips64-linux <span class="nt">--prefix</span><span class="o">=</span><span class="nv">$PWD</span>/install <span class="nv">CXXFLAGS</span><span class="o">=</span><span class="s2">"-O0"</span> <span class="nv">CXX</span><span class="o">=</span>mips64-linux-gnuabi64-g++-5
+<span class="nv">$ </span>make <span class="nt">-j4</span> <span class="o">&amp;&amp;</span> make <span class="nb">install</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>所示为，交叉编译到mips64系统👽</p>
 
-<p>老老实实打开目录手动安装Windows8.1-KB2999226-x64，提示不适合此计算机。查询之后，提示需要先打上<a href="https://www.microsoft.com/en-us/download/details.aspx?id=42334">KB2919355补丁</a></p>
+<h2 id="0x2-ffmpeg">0x2. FFmpeg</h2>
 
-<h2 id="安装kb2919355补丁">安装KB2919355补丁</h2>
+<blockquote>
+  <p>A complete, cross-platform solution to record, convert and stream audio and video.</p>
+</blockquote>
 
-<p>访问microsoft官网下载，安装，依然不适合此计算机，再次查询，提示安装<a href="https://www.microsoft.com/en-us/download/details.aspx?id=42334">KB2919355补丁</a>补丁需要先打上<a href="https://www.microsoft.com/zh-cn/download/details.aspx?id=42153">KB2919442</a>。俄罗斯套娃? :(</p>
+<ul>
+  <li><a href="http://ffmpeg.org/download.html">下载地址</a></li>
+  <li><a href="http://ffmpeg.org">官网地址</a></li>
+  <li>注意：configure 参数有所不同</li>
+</ul>
 
-<h2 id="安装kb2919442补丁">安装KB2919442补丁</h2>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="nv">$ </span>curl <span class="nt">-O</span> <span class="s2">"https://ffmpeg.org/releases/ffmpeg-4.2.2.tar.bz2"</span>
+<span class="nv">$ </span><span class="nb">tar</span> <span class="nt">-xvf</span> ffmpeg-4.2.2.tar.bz2
+<span class="nv">$ </span><span class="nb">cd </span>ffmpeg-4.2.2
+<span class="nv">$ </span>./configure <span class="nt">--disable-inline-asm</span> <span class="nt">--disable-x86asm</span> <span class="nt">--prefix</span><span class="o">=</span><span class="nv">$PWD</span>/install
+<span class="nv">$ </span>make <span class="nt">-j4</span> <span class="o">&amp;&amp;</span> make <span class="nb">install</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>所示为，得到使用静态链接、未函数内联的可执行文件👽</p>
 
-<p>下载安装KB2919442补丁，安装成功，return上一步，最终安装VC++2015运行库成功。完毕🤓</p>
+<h2 id="0x3-imagemagick">0x3. ImageMagick</h2>
+
+<blockquote>
+  <p>ImageMagick is free software delivered as a ready-to-run binary distribution or as source code that you may use, copy, modify, and distribute in both open and proprietary applications.</p>
+</blockquote>
+
+<ul>
+  <li><a href="https://imagemagick.org/script/install-source.php">下载地址</a></li>
+  <li><a href="https://imagemagick.org/">官网地址</a></li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+</pre></td><td class="rouge-code"><pre><span class="nv">$ </span>curl <span class="nt">-O</span> <span class="s2">"https://imagemagick.org/download/ImageMagick.tar.gz"</span>
+<span class="nv">$ </span><span class="nb">tar</span> <span class="nt">-xvf</span> ImageMagick.tar.gz
+<span class="nv">$ </span><span class="nb">cd </span>ImageMagick-7.0.9-22
+<span class="nv">$ </span>./configure <span class="nv">CFLAGS</span><span class="o">=</span><span class="s2">"-O0"</span>
+<span class="nv">$ </span>make <span class="nt">-j4</span> <span class="o">&amp;&amp;</span> make <span class="nb">install</span>
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>编译完成👽</p>
+
+<h2 id="0x4-gif2png">0x4. gif2png</h2>
+
+<blockquote>
+  <p>The gif2png program converts files from the Graphic Interchange Format (GIF) to Portable Network Graphics (PNG).</p>
+</blockquote>
+
+<ul>
+  <li><a href="https://gitlab.com/esr/gif2png">下载地址</a></li>
+  <li><a href="http://www.catb.org/~esr/gif2png/">官网地址</a></li>
+  <li>注意：3.0.0已改成Go语言</li>
+  <li>xmlto若未安装可以将其注释</li>
+</ul>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+</pre></td><td class="rouge-code"><pre><span class="nv">$ </span>curl <span class="nt">-O</span> <span class="s2">"https://gitlab.com/esr/gif2png/-/archive/2.5.14/gif2png-2.5.14.tar.gz"</span>
+<span class="nv">$ </span><span class="nb">tar</span> <span class="nt">-xvf</span> gif2png-2.5.14.tar.gz
+<span class="nv">$ </span><span class="nb">cd </span>gif2png-2.5.14
+<span class="nv">$ </span>make <span class="nt">-j4</span> 
+</pre></td></tr></tbody></table></code></pre></div></div>
+<p>编译完成</p>
 
 
 
@@ -273,19 +370,12 @@
                 <ul class="pager">
                     
                     <li class="previous">
-                        <a href="/2020/02/08/installer_githubPages/" data-toggle="tooltip" data-placement="top" title="Github Pages 博客搭建">
+                        <a href="/2020/02/09/installer_vcredist/" data-toggle="tooltip" data-placement="top" title="Windows Server 2012 R2安装VC++2015运行库">
                         Previous<br>
-                        <span>Github Pages 博客搭建</span>
+                        <span>Windows Server 2012 R2安装VC++2015运行库</span>
                         </a>
                     </li>
                     
-                    
-                    <li class="next">
-                        <a href="/2020/02/10/compile_binaries/" data-toggle="tooltip" data-placement="top" title="各种测试小程序编译(1)">
-                        Next<br>
-                        <span>各种测试小程序编译(1)</span>
-                        </a>
-                    </li>
                     
                 </ul>
                 <hr style="visibility: hidden;">
