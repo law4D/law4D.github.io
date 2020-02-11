@@ -309,11 +309,9 @@
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
 2
 3
-4
 </pre></td><td class="rouge-code"><pre><span class="nv">$ </span><span class="nb">cd</span> ../binutils/bin
 <span class="nv">$ </span>afl-fuzz <span class="nt">-d</span> <span class="nt">-i</span> ~/law4d/testcases/input/binutils <span class="nt">-o</span> ~/law4d/testcases/output/readelf/0 ./readelf - @@
 <span class="nv">$ </span>afl-fuzz <span class="nt">-i</span> ~/law4d/testcases/input/binutils <span class="nt">-o</span> ~/law4d/testcases/output/readelf/1 ./readelf <span class="nt">-d</span> @@
-<span class="nv">$ </span>afl-fuzz <span class="nt">-d</span> <span class="nt">-i</span> ~/ZH/testcases/input/binutils <span class="nt">-o</span> ~/ZH/testcases/output/objdump/1 ./objdump <span class="nt">-x</span> @@
 </pre></td></tr></tbody></table></code></pre></div></div>
 
 <p>运气好的话，就能发现crashes</p>

@@ -5,8 +5,8 @@
     <description>关于程序与设计、黑客与画家 | Law4D，Binary &amp; Security，Software Engineer| 这里是 @Law4D 的个人博客。</description>
     <link>https://Law4D.github.io/</link>
     <atom:link href="https://Law4D.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Tue, 11 Feb 2020 11:32:04 +0800</pubDate>
-    <lastBuildDate>Tue, 11 Feb 2020 11:32:04 +0800</lastBuildDate>
+    <pubDate>Tue, 11 Feb 2020 11:39:31 +0800</pubDate>
+    <lastBuildDate>Tue, 11 Feb 2020 11:39:31 +0800</lastBuildDate>
     <generator>Jekyll v4.0.0</generator>
     
       <item>
@@ -87,11 +87,9 @@
 &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
 2
 3
-4
 &lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; ../binutils/bin
 &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;afl-fuzz &lt;span class=&quot;nt&quot;&gt;-d&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-i&lt;/span&gt; ~/law4d/testcases/input/binutils &lt;span class=&quot;nt&quot;&gt;-o&lt;/span&gt; ~/law4d/testcases/output/readelf/0 ./readelf - @@
 &lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;afl-fuzz &lt;span class=&quot;nt&quot;&gt;-i&lt;/span&gt; ~/law4d/testcases/input/binutils &lt;span class=&quot;nt&quot;&gt;-o&lt;/span&gt; ~/law4d/testcases/output/readelf/1 ./readelf &lt;span class=&quot;nt&quot;&gt;-d&lt;/span&gt; @@
-&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;afl-fuzz &lt;span class=&quot;nt&quot;&gt;-d&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-i&lt;/span&gt; ~/ZH/testcases/input/binutils &lt;span class=&quot;nt&quot;&gt;-o&lt;/span&gt; ~/ZH/testcases/output/objdump/1 ./objdump &lt;span class=&quot;nt&quot;&gt;-x&lt;/span&gt; @@
 &lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
 
 &lt;p&gt;运气好的话，就能发现crashes&lt;/p&gt;
