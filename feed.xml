@@ -5,9 +5,158 @@
     <description>关于程序与设计、黑客与画家 | Law4D，Binary &amp; Security，Software Engineer| 这里是 @Law4D 的个人博客。</description>
     <link>https://Law4D.github.io/</link>
     <atom:link href="https://Law4D.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Mon, 10 Feb 2020 14:56:33 +0800</pubDate>
-    <lastBuildDate>Mon, 10 Feb 2020 14:56:33 +0800</lastBuildDate>
+    <pubDate>Tue, 11 Feb 2020 11:32:04 +0800</pubDate>
+    <lastBuildDate>Tue, 11 Feb 2020 11:32:04 +0800</lastBuildDate>
     <generator>Jekyll v4.0.0</generator>
+    
+      <item>
+        <title>AFL学习札记(1)</title>
+        <description>&lt;blockquote&gt;
+  &lt;p&gt;American Fuzzy Lop is a brute-force fuzzer coupled with an exceedingly simple but rock-solid instrumentation-guided genetic algorithm. It uses a modified form of edge coverage to effortlessly pick up subtle, local-scale changes to program control flow.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;AFL是由Google开发用于模糊测试的工具，可以说是当前最成功的模糊测试工具之一，无论是安全顶会还是软工定顶会都能看到AFL的身影。因此，本文对AFL进行学习。&lt;/p&gt;
+
+&lt;h2 id=&quot;0x0-安装afl&quot;&gt;0x0. 安装AFL&lt;/h2&gt;
+
+&lt;p&gt;安装AFL主要有两种方法，本文选第二种🤓，注意：新鲜的Ubuntu可能需要安装编译环境，另外设置PREFIX&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;apt-get install afl&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/google/AFL&quot;&gt;GitHub下载&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;apt-get &lt;span class=&quot;nb&quot;&gt;install &lt;/span&gt;build-essential
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;apt-get &lt;span class=&quot;nb&quot;&gt;install &lt;/span&gt;make
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;apt-get &lt;span class=&quot;nb&quot;&gt;install &lt;/span&gt;texinfo
+&lt;span class=&quot;err&quot;&gt;$&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;git clone https://github.com/google/AFL.git
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cd &lt;/span&gt;afl
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;vi Makefile
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;make &lt;span class=&quot;nt&quot;&gt;-j16&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; make &lt;span class=&quot;nb&quot;&gt;install&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;vi ~/.bash_profile
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;source&lt;/span&gt; ~/.bash_profile
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;安装在PREFIX目录里&lt;/p&gt;
+
+&lt;h2 id=&quot;0x1-下载测试用例&quot;&gt;0x1. 下载测试用例&lt;/h2&gt;
+
+&lt;p&gt;见&lt;a href=&quot;/2020/02/10/compile_binaries/&quot;&gt;各种测试小程序编译&lt;/a&gt;，本文以binutils为例。&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;curl &lt;span class=&quot;nt&quot;&gt;-O&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;https://mirrors.syringanetworks.net/gnu/binutils/binutils-2.34.tar.xz&quot;&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;tar&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-xvf&lt;/span&gt; binutils-2.34.tar.xz
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cd &lt;/span&gt;binutils-2.34
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;./configure &lt;span class=&quot;nv&quot;&gt;CFLAGS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;-O0&quot;&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;CC&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;afl-gcc &lt;span class=&quot;nv&quot;&gt;prefix&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$PWD&lt;/span&gt;/../binutils &lt;span class=&quot;nv&quot;&gt;CXXFLAGS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;-O0&quot;&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;CXX&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;afl-g++
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;make &lt;span class=&quot;nt&quot;&gt;-j16&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; make &lt;span class=&quot;nb&quot;&gt;install&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;测试用例编译完成&lt;/p&gt;
+
+&lt;h2 id=&quot;0x2-模糊测试&quot;&gt;0x2. 模糊测试&lt;/h2&gt;
+
+&lt;p&gt;首先对Ubuntu进行配置&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;su
+&lt;span class=&quot;c&quot;&gt;# echo core &amp;gt;/proc/sys/kernel/core_pattern&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# cd /sys/devices/system/cpu&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# echo performance | tee cpu*/cpufreq/scaling_governor&lt;/span&gt;
+&lt;span class=&quot;c&quot;&gt;# exit&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;开始测试&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; ../binutils/bin
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;afl-fuzz &lt;span class=&quot;nt&quot;&gt;-d&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-i&lt;/span&gt; ~/law4d/testcases/input/binutils &lt;span class=&quot;nt&quot;&gt;-o&lt;/span&gt; ~/law4d/testcases/output/readelf/0 ./readelf - @@
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;afl-fuzz &lt;span class=&quot;nt&quot;&gt;-i&lt;/span&gt; ~/law4d/testcases/input/binutils &lt;span class=&quot;nt&quot;&gt;-o&lt;/span&gt; ~/law4d/testcases/output/readelf/1 ./readelf &lt;span class=&quot;nt&quot;&gt;-d&lt;/span&gt; @@
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;afl-fuzz &lt;span class=&quot;nt&quot;&gt;-d&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-i&lt;/span&gt; ~/ZH/testcases/input/binutils &lt;span class=&quot;nt&quot;&gt;-o&lt;/span&gt; ~/ZH/testcases/output/objdump/1 ./objdump &lt;span class=&quot;nt&quot;&gt;-x&lt;/span&gt; @@
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;运气好的话，就能发现crashes&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;┌─ process timing ─────────────────────────────────────┬─ overall results ─────┐
+│        run &lt;span class=&quot;nb&quot;&gt;time&lt;/span&gt; : 0 days, 0 hrs, 26 min, 23 sec      │  cycles &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt; : 10     │
+│   last new path : 0 days, 0 hrs, 0 min, 10 sec       │  total paths : 801    │
+│ last &lt;span class=&quot;nb&quot;&gt;uniq &lt;/span&gt;crash : 0 days, 0 hrs, 11 min, 11 sec      │ &lt;span class=&quot;nb&quot;&gt;uniq &lt;/span&gt;crashes : 12     │
+│  last &lt;span class=&quot;nb&quot;&gt;uniq &lt;/span&gt;hang : none seen yet                      │   &lt;span class=&quot;nb&quot;&gt;uniq &lt;/span&gt;hangs : 0      │
+├─ cycle progress ────────────────────┬─ map coverage ─┴───────────────────────┤
+│  now processing : 34 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;4.24%&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;        │    map density : 0.59% / 3.04%         │
+│ paths timed out : 0 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;0.00%&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;         │ count coverage : 2.63 bits/tuple       │
+├─ stage progress ────────────────────┼─ findings &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;depth ────────────────────┤
+│  now trying : havoc                 │ favored paths : 249 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;31.09%&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;           │
+│ stage execs : 207/256 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;80.86%&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;      │  new edges on : 322 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;40.20%&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;           │
+│ total execs : 1.81M                 │ total crashes : 46 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;11 unique&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;         │
+│  &lt;span class=&quot;nb&quot;&gt;exec &lt;/span&gt;speed : 1153/sec              │  total tmouts : 13 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;3 unique&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;          │
+├─ fuzzing strategy yields ───────────┴───────────────┬─ path geometry ────────┤
+│   bit flips : n/a, n/a, n/a                         │    levels : 14         │
+│  byte flips : n/a, n/a, n/a                         │   pending : 345        │
+│ arithmetics : n/a, n/a, n/a                         │  pend fav : 0          │
+│  known ints : n/a, n/a, n/a                         │ own finds : 793        │
+│  dictionary : n/a, n/a, n/a                         │  imported : n/a        │
+│       havoc : 503/812k, 301/922k                    │ stability : 100.00%    │
+│        trim : 59.75%/66.7k, n/a                     ├────────────────────────┘
+└─────────────────────────────────────────────────────┘          &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;cpu001: 19%]
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;0x3-种子选取&quot;&gt;0x3. 种子选取&lt;/h2&gt;
+
+&lt;p&gt;种子对Fuzzing的影响非常大，因此使用好的种子能够快速发现crashes。2019年顶会USENIX Security发表的《MOPT: Optimized Mutation Scheduling for Fuzzers》中提供了若干种子。&lt;/p&gt;
+
+&lt;p&gt;下载地址：&lt;a href=&quot;https://github.com/puppet-meteor/MOpt-AFL&quot;&gt;Github&lt;/a&gt;&lt;/p&gt;
+
+</description>
+        <pubDate>Tue, 11 Feb 2020 16:00:00 +0800</pubDate>
+        <link>https://Law4D.github.io/2020/02/11/afl_fuzzing/</link>
+        <guid isPermaLink="true">https://Law4D.github.io/2020/02/11/afl_fuzzing/</guid>
+        
+        <category>AFL学习</category>
+        
+        
+      </item>
     
       <item>
         <title>各种测试小程序编译(1)</title>
