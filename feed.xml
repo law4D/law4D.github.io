@@ -5,9 +5,98 @@
     <description>关于程序与设计、黑客与画家 | Law4D，Binary &amp; Security，Software Engineer| 这里是 @Law4D 的个人博客。</description>
     <link>https://Law4D.github.io/</link>
     <atom:link href="https://Law4D.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Tue, 11 Feb 2020 11:39:31 +0800</pubDate>
-    <lastBuildDate>Tue, 11 Feb 2020 11:39:31 +0800</lastBuildDate>
+    <pubDate>Wed, 12 Feb 2020 12:09:25 +0800</pubDate>
+    <lastBuildDate>Wed, 12 Feb 2020 12:09:25 +0800</lastBuildDate>
     <generator>Jekyll v4.0.0</generator>
+    
+      <item>
+        <title>AFL学习札记(2)</title>
+        <description>&lt;p&gt;本文主要对AFL的crashes，进行简单的分析。&lt;/p&gt;
+
+&lt;h2 id=&quot;0x0-获取crashes&quot;&gt;0x0. 获取crashes&lt;/h2&gt;
+
+&lt;p&gt;操作简单，采用AFL，OSS-Fuzz等工具产生。&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/google/AFL&quot;&gt;American Fuzzy Lop&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;https://github.com/google/oss-fuzz&quot;&gt;oss-fuzz&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;0x1-使用address-sanitizie选项编译&quot;&gt;0x1. 使用Address-Sanitizie选项编译&lt;/h2&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;ASAN（Address-Sanitizier）早先是LLVM中的特性，后被加入GCC 4.8，在GCC 4.9后加入对ARM平台的支持。因此GCC 4.8以上版本使用ASAN时不需要安装第三方库，通过在编译时指定编译CFLAGS即可打开开关。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;再次对源代码进行编译，依然以binutils-2.34为例，将AFL_USE_ASAN置为1。&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cd &lt;/span&gt;binutils-2.34
+&lt;span class=&quot;nv&quot;&gt;$ AFL_USE_ASAN&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1 ./configure &lt;span class=&quot;nv&quot;&gt;CFLAGS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;-O0&quot;&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;CC&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;afl-gcc &lt;span class=&quot;nv&quot;&gt;prefix&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$PWD&lt;/span&gt;/install &lt;span class=&quot;nv&quot;&gt;CXXFLAGS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;-O0&quot;&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;CXX&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;afl-g++ 
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;make &lt;span class=&quot;nt&quot;&gt;-j16&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;make &lt;span class=&quot;nb&quot;&gt;install&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;0x2-查找问题所在&quot;&gt;0x2. 查找问题所在&lt;/h2&gt;
+
+&lt;p&gt;运行产生crashes的样例。&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;./objdump &lt;span class=&quot;nt&quot;&gt;-x&lt;/span&gt; sample 
+
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;o&quot;&gt;==&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;19950&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;==&lt;/span&gt;ERROR: AddressSanitizer: attempting free on address which was not malloc&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;-ed&lt;/span&gt;: 0x61e00000f4e0 &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;thread T0
+    &lt;span class=&quot;c&quot;&gt;#0 0x7f063b6522ca in __interceptor_free (/usr/lib/x86_64-linux-gnu/libasan.so.2+0x982ca)&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;#1 0x958046 in _bfd_coff_free_symbols /home/ubuntu/xxx/sources/binutils-2.34/bfd/coffgen.c:1782&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;#2 0x958046 in _bfd_coff_close_and_cleanup /home/ubuntu/xxx/sources/binutils-2.34/bfd/coffgen.c:3180&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;#3 0x637038 in bfd_close_all_done /home/ubuntu/xxx/sources/binutils-2.34/bfd/opncls.c:789&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;#4 0x41165e in display_file objdump.c:5016&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;#5 0x41165e in main objdump.c:5349&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;#6 0x7f063b00c82f in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2082f)&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;#7 0x4153b8 in _start (/home/ubuntu/xxx/proven/binutils/bin/objdump+0x4153b8)&lt;/span&gt;
+
+0x61e00000f4e0 is located 1120 bytes inside of 2594-byte region &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;0x61e00000f080,0x61e00000faa2&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+allocated by thread T0 here:
+    &lt;span class=&quot;c&quot;&gt;#0 0x7f063b65279a in __interceptor_calloc (/usr/lib/x86_64-linux-gnu/libasan.so.2+0x9879a)&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;#1 0x62963a in bfd_malloc /home/ubuntu/xxx/sources/binutils-2.34/bfd/libbfd.c:275&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;#2 0x62963a in bfd_zmalloc /home/ubuntu/xxx/sources/binutils-2.34/bfd/libbfd.c:360&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;目测问题出在了binutils-2.34/bfd/libbfd.c:275和binutils-2.34/bfd/libbfd.c:360，这里没有细分析。&lt;/p&gt;
+
+&lt;h2 id=&quot;0x3-后记&quot;&gt;0x3. 后记&lt;/h2&gt;
+
+&lt;p&gt;实际中crashes并不是经常能遇见，所以难度往往集中在第0x0步，预祝crashes天天有。&lt;/p&gt;
+
+</description>
+        <pubDate>Wed, 12 Feb 2020 16:00:00 +0800</pubDate>
+        <link>https://Law4D.github.io/2020/02/12/afl_fuzzing_2/</link>
+        <guid isPermaLink="true">https://Law4D.github.io/2020/02/12/afl_fuzzing_2/</guid>
+        
+        <category>AFL学习</category>
+        
+        
+      </item>
     
       <item>
         <title>AFL学习札记(1)</title>
