@@ -2,12 +2,105 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Law4D Blog</title>
-    <description>关于程序与设计、黑客与画家 | Law4D，Binary &amp; Security，Software Engineer| 这里是 @Law4D 的个人博客。</description>
+    <description>关于程序设计、网络安全 | Law4D，Binary &amp; Security，Software Engineer| 这里是 @Law4D 的个人博客。</description>
     <link>https://Law4D.github.io/</link>
     <atom:link href="https://Law4D.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Thu, 13 Feb 2020 22:26:38 +0800</pubDate>
-    <lastBuildDate>Thu, 13 Feb 2020 22:26:38 +0800</lastBuildDate>
+    <pubDate>Fri, 14 Feb 2020 22:39:24 +0800</pubDate>
+    <lastBuildDate>Fri, 14 Feb 2020 22:39:24 +0800</lastBuildDate>
     <generator>Jekyll v4.0.0</generator>
+    
+      <item>
+        <title>函数内联的那些事(1)</title>
+        <description>&lt;h2 id=&quot;0x0-函数内联是什么&quot;&gt;0x0. 函数内联是什么？&lt;/h2&gt;
+
+&lt;p&gt;函数内联的是为了解决程序中函数调用的效率问题提出的一种编译策略。程序在编译器编译的时候， 编译器将程序中内联函数的调用表达式用内联函数的函数体来进行替换。使用空间代价换取更快的函数调用。&lt;/p&gt;
+
+&lt;h2 id=&quot;0x1-函数内联对程序分析的影响&quot;&gt;0x1. 函数内联对程序分析的影响&lt;/h2&gt;
+
+&lt;p&gt;函数内联对程序分析影响如下：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;改变函数控制流图(CFG)&lt;/li&gt;
+  &lt;li&gt;可能额外引入源代码中没有的常量&lt;/li&gt;
+  &lt;li&gt;与原函数产生较大差异&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;因此，我准备看看不同编译优化选项，函数内联到底有多少。&lt;/p&gt;
+
+&lt;h2 id=&quot;0x2-函数内联统计&quot;&gt;0x2 函数内联统计&lt;/h2&gt;
+
+&lt;h3 id=&quot;0x21-测试环境&quot;&gt;0x2.1 测试环境&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;系统：Ubuntu 16.04&lt;/li&gt;
+  &lt;li&gt;编译器：GCC 5.4&lt;/li&gt;
+  &lt;li&gt;测试目标：Binutils&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;0x22-测试方法&quot;&gt;0x2.2 测试方法&lt;/h3&gt;
+
+&lt;p&gt;使用同一编译器，不同编译优化选项进行进行编译；然后比较同名文件不同优化选项的内联情况。这里假设O0可执行文件未进行内联优化。&lt;/p&gt;
+
+&lt;h3 id=&quot;0x23-统计结果&quot;&gt;0x2.3 统计结果&lt;/h3&gt;
+
+&lt;p&gt;我们对binutils中ld, elfedit, c++filt, objdump, gprof, readelf, ranlib, as, ar, strip, nm, addr2line, objcopy, strings, size等可执行文件进行统计。&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt; &lt;/th&gt;
+      &lt;th&gt;O0&lt;/th&gt;
+      &lt;th&gt;01&lt;/th&gt;
+      &lt;th&gt;O2&lt;/th&gt;
+      &lt;th&gt;03&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;O0&lt;/td&gt;
+      &lt;td&gt;-&lt;/td&gt;
+      &lt;td&gt;-&lt;/td&gt;
+      &lt;td&gt;-&lt;/td&gt;
+      &lt;td&gt;-&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;O1&lt;/td&gt;
+      &lt;td&gt;27.3%&lt;/td&gt;
+      &lt;td&gt;-&lt;/td&gt;
+      &lt;td&gt;-&lt;/td&gt;
+      &lt;td&gt;-&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;O2&lt;/td&gt;
+      &lt;td&gt;28.3%&lt;/td&gt;
+      &lt;td&gt;18.9%&lt;/td&gt;
+      &lt;td&gt;-&lt;/td&gt;
+      &lt;td&gt;-&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;O3&lt;/td&gt;
+      &lt;td&gt;33.3%&lt;/td&gt;
+      &lt;td&gt;31.6%&lt;/td&gt;
+      &lt;td&gt;26.2%&lt;/td&gt;
+      &lt;td&gt;-&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h2 id=&quot;0x3-讨论&quot;&gt;0x3 讨论&lt;/h2&gt;
+
+&lt;p&gt;本以为，函数内联在编译中出现频率会比较低，通过实验表明，在编译时会有相当一部分的函数被编译器内联。因此在进行二进制程序分析时，应当对函数内联进行一定的处理。&lt;/p&gt;
+</description>
+        <pubDate>Fri, 14 Feb 2020 20:12:00 +0800</pubDate>
+        <link>https://Law4D.github.io/2020/02/14/function_inline/</link>
+        <guid isPermaLink="true">https://Law4D.github.io/2020/02/14/function_inline/</guid>
+        
+        <category>程序分析</category>
+        
+        <category>软件同源</category>
+        
+        
+      </item>
     
       <item>
         <title>AFL学习札记(2)</title>

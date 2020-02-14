@@ -11,16 +11,28 @@
     <meta name="theme-color" content="#000000">
     
     <!-- Open Graph -->
-    <meta property="og:title" content="About - Law4D的博客 | Law4D Blog">
+    <meta property="og:title" content="函数内联的那些事(1) - Law4D的博客 | Law4D Blog">
     
-    <meta property="og:type" content="website">
-    <meta property="og:description" content="让优秀成为习惯">
+    <meta property="og:type" content="article">
+    <meta property="og:description" content="0x0. 函数内联是什么？
+">
+    
+    <meta property="article:published_time" content="2020-02-14T20:12:00Z">
+    
+    
+    <meta property="article:author" content="Law4D">
+    
+    
+    <meta property="article:tag" content="程序分析">
+    
+    <meta property="article:tag" content="软件同源">
+    
     
     <meta property="og:image" content="https://Law4D.github.io/img/avator-law.png">
-    <meta property="og:url" content="https://Law4D.github.io/about/">
+    <meta property="og:url" content="https://Law4D.github.io/2020/02/14/function_inline/">
     <meta property="og:site_name" content="Law4D的博客 | Law4D Blog">
     
-    <title>About - Law4D的博客 | Law4D Blog</title>
+    <title>函数内联的那些事(1) - Law4D的博客 | Law4D Blog</title>
 
     <!-- Web App Manifest -->
     <link rel="manifest" href="/pwa/manifest.json">
@@ -29,7 +41,7 @@
     <link rel="shortcut icon" href="/img/favicon.ico">
     
     <!-- Canonical URL -->
-    <link rel="canonical" href="https://Law4D.github.io/about/">
+    <link rel="canonical" href="https://Law4D.github.io/2020/02/14/function_inline/">
 
     <!-- Bootstrap Core CSS -->
     <link rel="stylesheet" href="/css/bootstrap.min.css">
@@ -163,93 +175,184 @@
 </script>
 
 
-    <!-- Page Header -->
+    <!-- Image to hack wechat -->
+<!-- <img src="/img/icon_wechat.png" width="0" height="0"> -->
+<!-- <img src="/img/home-bg.jpg" width="0" height="0"> -->
+
+<!-- Post Header -->
 
 
 
+<style type="text/css">
+    header.intro-header{
+        position: relative;
+        background-image: url('/img/home-bg.jpg');
+        background: ;
+    }
 
+    
+</style>
 
+<header class="intro-header" >
 
-
-<header class="intro-header" style="background-image: url('/img/about-bg.jpg')">
-  <div class="container">
-    <div class="row">
-      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
-        
-        <div class="site-heading">
-        
-          <h1>About</h1>
-          <span class="subheading">让优秀成为习惯</span>
+    <div class="header-mask"></div>
+    
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/archive/?tag=%E7%A8%8B%E5%BA%8F%E5%88%86%E6%9E%90" title="程序分析">程序分析</a>
+                        
+                        <a class="tag" href="/archive/?tag=%E8%BD%AF%E4%BB%B6%E5%90%8C%E6%BA%90" title="软件同源">软件同源</a>
+                        
+                    </div>
+                    <h1>函数内联的那些事(1)</h1>
+                    
+                    <h2 class="subheading">对开源软件做了些许分析</h2>
+                    <span class="meta">Posted by Law4D on February 14, 2020</span>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 </header>
 
 
-<!-- Main Content -->
-<div class="container">
-	<div class="row">
+
+
+
+
+<!-- Post Content -->
+<article>
+    <div class="container">
+        <div class="row">
+
+    <!-- Post Container -->
+            <div class="
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                post-container">
+
+                <!-- Multi-Lingual -->
+                
+
+				<h2 id="0x0-函数内联是什么">0x0. 函数内联是什么？</h2>
+
+<p>函数内联的是为了解决程序中函数调用的效率问题提出的一种编译策略。程序在编译器编译的时候， 编译器将程序中内联函数的调用表达式用内联函数的函数体来进行替换。使用空间代价换取更快的函数调用。</p>
+
+<h2 id="0x1-函数内联对程序分析的影响">0x1. 函数内联对程序分析的影响</h2>
+
+<p>函数内联对程序分析影响如下：</p>
+
+<ul>
+  <li>改变函数控制流图(CFG)</li>
+  <li>可能额外引入源代码中没有的常量</li>
+  <li>与原函数产生较大差异</li>
+</ul>
+
+<p>因此，我准备看看不同编译优化选项，函数内联到底有多少。</p>
+
+<h2 id="0x2-函数内联统计">0x2 函数内联统计</h2>
+
+<h3 id="0x21-测试环境">0x2.1 测试环境</h3>
+
+<ul>
+  <li>系统：Ubuntu 16.04</li>
+  <li>编译器：GCC 5.4</li>
+  <li>测试目标：Binutils</li>
+</ul>
+
+<h3 id="0x22-测试方法">0x2.2 测试方法</h3>
+
+<p>使用同一编译器，不同编译优化选项进行进行编译；然后比较同名文件不同优化选项的内联情况。这里假设O0可执行文件未进行内联优化。</p>
+
+<h3 id="0x23-统计结果">0x2.3 统计结果</h3>
+
+<p>我们对binutils中ld, elfedit, c++filt, objdump, gprof, readelf, ranlib, as, ar, strip, nm, addr2line, objcopy, strings, size等可执行文件进行统计。</p>
+
+<table>
+  <thead>
+    <tr>
+      <th> </th>
+      <th>O0</th>
+      <th>01</th>
+      <th>O2</th>
+      <th>03</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>O0</td>
+      <td>-</td>
+      <td>-</td>
+      <td>-</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>O1</td>
+      <td>27.3%</td>
+      <td>-</td>
+      <td>-</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>O2</td>
+      <td>28.3%</td>
+      <td>18.9%</td>
+      <td>-</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>O3</td>
+      <td>33.3%</td>
+      <td>31.6%</td>
+      <td>26.2%</td>
+      <td>-</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="0x3-讨论">0x3 讨论</h2>
+
+<p>本以为，函数内联在编译中出现频率会比较低，通过实验表明，在编译时会有相当一部分的函数被编译器内联。因此在进行二进制程序分析时，应当对函数内联进行一定的处理。</p>
+
+
+                <hr style="visibility: hidden;">
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/2020/02/12/afl_fuzzing_2/" data-toggle="tooltip" data-placement="top" title="AFL学习札记(2)">
+                        Previous<br>
+                        <span>AFL学习札记(2)</span>
+                        </a>
+                    </li>
+                    
+                    
+                </ul>
+                <hr style="visibility: hidden;">
+
+                
+
+                
+            </div>  
+
+    <!-- Side Catalog Container -->
         
 
-<!-- USE SIDEBAR -->
-    <!-- PostList Container -->
-    		<div class="
-                col-lg-8 col-lg-offset-1
-                col-md-8 col-md-offset-1
-                col-sm-12
-                col-xs-12
-                postlist-container
-            ">
-    			                <!-- Language Selector -->
-                <select class="sel-lang" onchange= "onLanChange(this.options[this.options.selectedIndex].value)">
-                    <option value="0" selected> 中文 | Chinese </option>
-                    <option value="1"> 英文 | English </option>
-                </select>
-
-
-
-<!-- Chinese Version -->
-<div class="zh post-container">
-    
-    <blockquote>
-  <p>State Of The Art</p>
-</blockquote>
-
-<p>Hi，我是Law4D，程序分析小白。</p>
-
-
-</div>
-
-<!-- English Version -->
-<div class="en post-container">
-    
-    <blockquote>
-  <p>State Of The Art</p>
-</blockquote>
-
-<p>Hi，I’m Law4D, a beginner of software analysis.</p>
-
-
-</div>
-
-
-
-
-    		</div>
     <!-- Sidebar Container -->
             <div class="
-                col-lg-3 col-lg-offset-0
-                col-md-3 col-md-offset-0
-                col-sm-12
-                col-xs-12
-                sidebar-container
-            ">
+                col-lg-8 col-lg-offset-2
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
                 <!-- Featured Tags -->
                 
 
 
 <section>
+    
+        <hr class="hidden-sm hidden-xs">
     
     <h5><a href="/archive/">FEATURED TAGS</a></h5>
     <div class="tags">
@@ -277,44 +380,6 @@
 </section>
 
 
-                <!-- Short About -->
-                <section class="visible-md visible-lg">
-  <hr>
-  <h5><a href="/about/">ABOUT ME</a></h5>
-  <div class="short-about">
-    
-    <img src="/img/avator-law.png" />
-    
-    
-    <p>Seize the day<br>不负韶华</p>
-    
-    <!-- SNS Link -->
-    
-
-
-<ul class="list-inline">
-
-
-  
-  
-  
-  
-  
-  
-  <li>
-    <a target="_blank" href="https://github.com/Law4D">
-      <span class="fa-stack fa-lg">
-        <i class="fa fa-circle fa-stack-2x"></i>
-        <i class="fa fa-github fa-stack-1x fa-inverse"></i>
-      </span>
-    </a>
-  </li>
-  
-  
-</ul>
-  </div>
-</section>
-
                 <!-- Friends Blog -->
                 
 <hr>
@@ -323,10 +388,54 @@
   
 </ul>
 
-    		</div>
-        
-	</div>
-</div>
+            </div>
+        </div>
+    </div>
+</article>
+
+<!-- add support for mathjax by voleking-->
+
+
+
+
+
+
+
+
+
+<!-- async load function -->
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+<!-- anchor-js, Doc:http://bryanbraun.github.io/anchorjs/ -->
+<script>
+    async("//cdnjs.cloudflare.com/ajax/libs/anchor-js/1.1.1/anchor.min.js",function(){
+        anchors.options = {
+          visible: 'hover',
+          placement: 'right',
+          // icon: '#'
+        };
+        anchors.add().remove('.intro-header h1').remove('.subheading').remove('.sidebar-container h5');
+    })
+</script>
+<style>
+    /* place left on bigger screen */
+    @media all and (min-width: 800px) {
+        .anchorjs-link{
+            position: absolute;
+            left: -0.75em;
+            font-size: 1.1em;
+            margin-top : -0.1em;
+        }
+    }
+</style>
 
 
 
@@ -448,58 +557,6 @@
 
 
 <!-- Multi-Lingual -->
-
-<!-- Handle Language Change -->
-<script type="text/javascript">
-    // get nodes
-    var $zh = document.querySelector(".zh");
-    var $en = document.querySelector(".en");
-    var $select = document.querySelector("select");
-
-    // Changes at v1.8.1: include lang flag as a url query. This interop well with catalog hash anchors.
-    function getLang() { return new URLSearchParams(document.location.search).get("lang") }
-
-    function setLang(newLang) {
-        var params = new URLSearchParams(document.location.search)
-        params.set("lang", newLang)
-        document.location.search = params.toString()  // refresh.
-    }
-
-    // handle render
-    function _render(){
-        var lang = getLang()
-        // en
-        if(lang == "en"){
-            $select.selectedIndex = 1;
-            $en.style.display = "block";
-            $en.classList.add("active");
-            $zh.style.display = "none";
-            $zh.classList.remove("active");
-        // default to zh-cn
-        }else{
-            $select.selectedIndex = 0;
-            $zh.style.display = "block";
-            $zh.classList.add("active");
-            $en.style.display = "none";
-            $en.classList.remove("active");
-        }
-        // interop with catalog 
-        if ("") generateCatalog(".catalog-body");
-    }
-
-    // handle select change
-    function onLanChange(index){
-        if(index == 0){
-            lang = "zh"
-        }else{
-            lang = "en"
-        }
-        setLang(lang)
-    }
-
-    // init
-    _render();
-</script>
 
 
 
