@@ -203,6 +203,49 @@
             ">
     			
 <div class="post-preview">
+    <a href="/2020/02/15/afl_fuzzing_3/">
+        <h2 class="post-title">
+            AFL学习札记(3)
+        </h2>
+        
+        <h3 class="post-subtitle">
+            American Fuzzy Lop
+        </h3>
+        
+        <div class="post-content-preview">
+            
+                本文主要对AFL的产生的大量crashes，进行分析。
+
+0x0. 大量crashes处理
+
+虽然AFL运行时的图上显示的是uniq crashes的数量，但是其实还是有许多crash触发点是相同。例如本次实验中，出现了524个uniq crashes，其实他们可能知识前期路径不同，但是触发点还是一致，属于同一漏洞。
+
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+...
+            
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by Law4D on February 15, 2020
+    </p>
+</div>
+<hr>
+
+<div class="post-preview">
     <a href="/2020/02/12/afl_fuzzing_2/">
         <h2 class="post-title">
             AFL学习札记(2)
@@ -388,7 +431,7 @@ Jekyll是什么？
         </a>
         
         
-                <a data-sort="0003" 
+                <a data-sort="0004" 
                     href="/archive/?tag=%E5%AE%89%E8%A3%85%E7%AC%94%E8%AE%B0"
                     title="安装笔记"
                     rel="3">安装笔记</a>
@@ -396,9 +439,9 @@ Jekyll是什么？
                 <a data-sort="0004" 
                     href="/archive/?tag=AFL%E5%AD%A6%E4%B9%A0"
                     title="AFL学习"
-                    rel="2">AFL学习</a>
+                    rel="3">AFL学习</a>
         
-                <a data-sort="0004" 
+                <a data-sort="0005" 
                     href="/archive/?tag=MISC"
                     title="MISC"
                     rel="2">MISC

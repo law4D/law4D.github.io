@@ -5,9 +5,178 @@
     <description>关于程序设计、网络安全 | Law4D，Binary &amp; Security，Software Engineer| 这里是 @Law4D 的个人博客。</description>
     <link>https://Law4D.github.io/</link>
     <atom:link href="https://Law4D.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Fri, 14 Feb 2020 22:39:24 +0800</pubDate>
-    <lastBuildDate>Fri, 14 Feb 2020 22:39:24 +0800</lastBuildDate>
+    <pubDate>Sat, 15 Feb 2020 20:04:05 +0800</pubDate>
+    <lastBuildDate>Sat, 15 Feb 2020 20:04:05 +0800</lastBuildDate>
     <generator>Jekyll v4.0.0</generator>
+    
+      <item>
+        <title>AFL学习札记(3)</title>
+        <description>&lt;p&gt;本文主要对AFL的产生的大量crashes，进行分析。&lt;/p&gt;
+
+&lt;h2 id=&quot;0x0-大量crashes处理&quot;&gt;0x0. 大量crashes处理&lt;/h2&gt;
+
+&lt;p&gt;虽然AFL运行时的图上显示的是uniq crashes的数量，但是其实还是有许多crash触发点是&lt;code class=&quot;highlighter-rouge&quot;&gt;相同&lt;/code&gt;。例如本次实验中，出现了524个uniq crashes，其实他们可能知识前期路径不同，但是触发点还是一致，属于同一漏洞。&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;┌─ process timing ─────────────────────────────────────┬─ overall results ─────┐
+│        run &lt;span class=&quot;nb&quot;&gt;time&lt;/span&gt; : 1 days, 23 hrs, 12 min, 27 sec     │  cycles &lt;span class=&quot;k&quot;&gt;done&lt;/span&gt; : 3      │
+│   last new path : 0 days, 3 hrs, 59 min, 36 sec      │  total paths : 4487   │
+│ last &lt;span class=&quot;nb&quot;&gt;uniq &lt;/span&gt;crash : 0 days, 6 hrs, 15 min, 52 sec      │ &lt;span class=&quot;nb&quot;&gt;uniq &lt;/span&gt;crashes : 524    │
+│  last &lt;span class=&quot;nb&quot;&gt;uniq &lt;/span&gt;hang : none seen yet                      │   &lt;span class=&quot;nb&quot;&gt;uniq &lt;/span&gt;hangs : 0      │
+├─ cycle progress ────────────────────┬─ map coverage ─┴───────────────────────┤
+│  now processing : 4413&lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;98.35%&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;    │    map density : 1.43% / 6.60%         │
+│ paths timed out : 0 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;0.00%&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;         │ count coverage : 4.38 bits/tuple       │
+├─ stage progress ────────────────────┼─ findings &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;depth ────────────────────┤
+│  now trying : arith 16/8            │ favored paths : 601 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;13.39%&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;           │
+│ stage execs : 620k/2.30M &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;27.05%&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;   │  new edges on : 1173 &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;26.14%&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;          │
+│ total execs : 106M                  │ total crashes : 1.55M &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;524 unique&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;     │
+│  &lt;span class=&quot;nb&quot;&gt;exec &lt;/span&gt;speed : 102.2/sec             │  total tmouts : 32.5k &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;130 unique&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;     │
+├─ fuzzing strategy yields ───────────┴───────────────┬─ path geometry ────────┤
+│   bit flips : 763/4.15M, 224/4.15M, 120/4.15M       │    levels : 40         │
+│  byte flips : 12/518k, 7/398k, 9/412k               │   pending : 3027       │
+│ arithmetics : 474/21.8M, 52/18.0M, 17/14.7M         │  pend fav : 3          │
+│  known ints : 35/1.36M, 133/5.61M, 202/10.4M        │ own finds : 4485       │
+│  dictionary : 0/0, 0/0, 155/10.3M                   │  imported : n/a        │
+│       havoc : 2806/9.87M, 0/0                       │ stability : 100.00%    │
+│        trim : 0.11%/123k, 24.46%                    ├────────────────────────┘
+└─────────────────────────────────────────────────────┘          &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;cpu001: 25%]
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;0x1-使用address-sanitizie选项编译&quot;&gt;0x1. 使用Address-Sanitizie选项编译&lt;/h2&gt;
+
+&lt;p&gt;这里还是需要Address-Sanitizie这款厉害的工具，再次对源代码进行编译，将AFL_USE_ASAN置为1。&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;cd &lt;/span&gt;sources/
+&lt;span class=&quot;nv&quot;&gt;$ AFL_USE_ASAN&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;1 ./configure &lt;span class=&quot;nv&quot;&gt;CFLAGS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;-O0&quot;&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;CC&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;afl-gcc &lt;span class=&quot;nv&quot;&gt;prefix&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;$PWD&lt;/span&gt;/install &lt;span class=&quot;nv&quot;&gt;CXXFLAGS&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;&quot;-O0&quot;&lt;/span&gt; &lt;span class=&quot;nv&quot;&gt;CXX&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;afl-g++ 
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;make &lt;span class=&quot;nt&quot;&gt;-j16&lt;/span&gt;
+&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;make &lt;span class=&quot;nb&quot;&gt;install&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;0x2-查找问题所在&quot;&gt;0x2. 查找问题所在&lt;/h2&gt;
+
+&lt;p&gt;使用了Address-Sanitizier选项后，运行得到如下信息：&lt;/p&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;o&quot;&gt;==&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;19950&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;==&lt;/span&gt;ERROR: AddressSanitizer: attempting free on address which was not malloc&lt;span class=&quot;o&quot;&gt;()&lt;/span&gt;&lt;span class=&quot;nt&quot;&gt;-ed&lt;/span&gt;: 0x61e00000f4e0 &lt;span class=&quot;k&quot;&gt;in &lt;/span&gt;thread T0
+    &lt;span class=&quot;c&quot;&gt;#0 0x7f063b6522ca in __interceptor_free (/usr/lib/x86_64-linux-gnu/libasan.so.2+0x982ca)&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;#1 0x958046 in _bfd_coff_free_symbols /home/ubuntu/xxx/sources/binutils-2.34/bfd/coffgen.c:1782&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;#2 0x958046 in _bfd_coff_close_and_cleanup /home/ubuntu/xxx/sources/binutils-2.34/bfd/coffgen.c:3180&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;#3 0x637038 in bfd_close_all_done /home/ubuntu/xxx/sources/binutils-2.34/bfd/opncls.c:789&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;#4 0x41165e in display_file objdump.c:5016&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;#5 0x41165e in main objdump.c:5349&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;#6 0x7f063b00c82f in __libc_start_main (/lib/x86_64-linux-gnu/libc.so.6+0x2082f)&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;#7 0x4153b8 in _start (/home/ubuntu/xxx/proven/binutils/bin/objdump+0x4153b8)&lt;/span&gt;
+
+0x61e00000f4e0 is located 1120 bytes inside of 2594-byte region &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;0x61e00000f080,0x61e00000faa2&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+allocated by thread T0 here:
+    &lt;span class=&quot;c&quot;&gt;#0 0x7f063b65279a in __interceptor_calloc (/usr/lib/x86_64-linux-gnu/libasan.so.2+0x9879a)&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;#1 0x62963a in bfd_malloc /home/ubuntu/xxx/sources/binutils-2.34/bfd/libbfd.c:275&lt;/span&gt;
+    &lt;span class=&quot;c&quot;&gt;#2 0x62963a in bfd_zmalloc /home/ubuntu/xxx/sources/binutils-2.34/bfd/libbfd.c:360&lt;/span&gt;
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;使用python脚本对所有crashes进行遍历，得到确确实实的uniq crashes，齐活🤓&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;table class=&quot;rouge-table&quot;&gt;&lt;tbody&gt;&lt;tr&gt;&lt;td class=&quot;rouge-gutter gl&quot;&gt;&lt;pre class=&quot;lineno&quot;&gt;1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;rouge-code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;os&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;sys&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;re&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;__name__&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;&quot;__main__&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;elf&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sys&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;argv&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;input_dir&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;sys&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;argv&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;uniq_crashes&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[]&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;uniq_seed&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[]&lt;/span&gt;
+    
+    &lt;span class=&quot;n&quot;&gt;input_files&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;listdir&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;input_dir&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;pattern&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;r&quot;SUMMARY: AddressSanitizer: (.*)&quot;&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;f&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;input_files&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;cur&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;os&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;popen&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;{} {}&quot;&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;format&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;elf&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;input_dir&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;text&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;cur&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;read&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;try&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;vul&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;re&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;findall&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pattern&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;text&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;except&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;continue&lt;/span&gt;
+        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;vul&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;uniq_crashes&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;k&quot;&gt;continue&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;uniq_crashes&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;append&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;vul&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;uniq_seed&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;append&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;f&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;&lt;/table&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h2 id=&quot;0x3-后记&quot;&gt;0x3. 后记&lt;/h2&gt;
+
+&lt;p&gt;不得不说AddressSanitizer非常之厉害，使用之后，能够快速定位漏洞原因所在。&lt;/p&gt;
+
+</description>
+        <pubDate>Sat, 15 Feb 2020 20:00:00 +0800</pubDate>
+        <link>https://Law4D.github.io/2020/02/15/afl_fuzzing_3/</link>
+        <guid isPermaLink="true">https://Law4D.github.io/2020/02/15/afl_fuzzing_3/</guid>
+        
+        <category>AFL学习</category>
+        
+        
+      </item>
     
       <item>
         <title>函数内联的那些事(1)</title>
