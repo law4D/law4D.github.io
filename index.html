@@ -203,6 +203,36 @@
             ">
     			
 <div class="post-preview">
+    <a href="/2020/02/19/notes_lcov/">
+        <h2 class="post-title">
+            用GCOV和LCOV测程序覆盖率
+        </h2>
+        
+        <h3 class="post-subtitle">
+            程序分析
+        </h3>
+        
+        <div class="post-content-preview">
+            
+                0x0. gcov和LCOV是什么？
+
+GCOV是伴随gcc发布，用于执行测试用例生成代码覆盖率信息。
+
+
+  在gcc编译和链接时加入-fprofile-arcs -ftest-coverage
+  gcov主要使用.gcno和.gcda两个文件
+  .gcno是由-ftest-coverage产生的，它包含了重建基本块图和相应的块的源码的行号的信息。
+  .gcda是由加了-fprofi...
+            
+        </div>
+    </a>
+    <p class="post-meta">
+        Posted by Law4D on February 19, 2020
+    </p>
+</div>
+<hr>
+
+<div class="post-preview">
     <a href="/2020/02/15/afl_fuzzing_3/">
         <h2 class="post-title">
             AFL学习札记(3)
@@ -431,17 +461,22 @@ Jekyll是什么？
         </a>
         
         
-                <a data-sort="0004" 
+                <a data-sort="0005" 
                     href="/archive/?tag=%E5%AE%89%E8%A3%85%E7%AC%94%E8%AE%B0"
                     title="安装笔记"
                     rel="3">安装笔记</a>
         
-                <a data-sort="0004" 
+                <a data-sort="0005" 
                     href="/archive/?tag=AFL%E5%AD%A6%E4%B9%A0"
                     title="AFL学习"
                     rel="3">AFL学习</a>
         
-                <a data-sort="0005" 
+                <a data-sort="0006" 
+                    href="/archive/?tag=%E7%A8%8B%E5%BA%8F%E5%88%86%E6%9E%90"
+                    title="程序分析"
+                    rel="2">程序分析</a>
+        
+                <a data-sort="0006" 
                     href="/archive/?tag=MISC"
                     title="MISC"
                     rel="2">MISC
