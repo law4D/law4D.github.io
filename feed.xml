@@ -5,19 +5,19 @@
     <description>关于程序设计、网络安全 | Law4D，Binary &amp; Security，Software Engineer| 这里是 @Law4D 的个人博客。</description>
     <link>https://Law4D.github.io/</link>
     <atom:link href="https://Law4D.github.io/feed.xml" rel="self" type="application/rss+xml" />
-    <pubDate>Wed, 19 Feb 2020 23:43:02 +0800</pubDate>
-    <lastBuildDate>Wed, 19 Feb 2020 23:43:02 +0800</lastBuildDate>
+    <pubDate>Thu, 20 Feb 2020 11:29:40 +0800</pubDate>
+    <lastBuildDate>Thu, 20 Feb 2020 11:29:40 +0800</lastBuildDate>
     <generator>Jekyll v4.0.0</generator>
     
       <item>
         <title>用GCOV和LCOV测程序覆盖率</title>
-        <description>&lt;h2 id=&quot;0x0-gcov和lcov是什么&quot;&gt;0x0. gcov和LCOV是什么？&lt;/h2&gt;
+        <description>&lt;h2 id=&quot;0x0-gcov和lcov是什么&quot;&gt;0x0. GCOV和LCOV是什么？&lt;/h2&gt;
 
 &lt;p&gt;GCOV是伴随gcc发布，用于执行测试用例生成代码覆盖率信息。&lt;/p&gt;
 
 &lt;ul&gt;
   &lt;li&gt;在gcc编译和链接时加入-fprofile-arcs -ftest-coverage&lt;/li&gt;
-  &lt;li&gt;gcov主要使用.gcno和.gcda两个文件&lt;/li&gt;
+  &lt;li&gt;GCOV主要使用.gcno和.gcda两个文件&lt;/li&gt;
   &lt;li&gt;.gcno是由-ftest-coverage产生的，它包含了重建基本块图和相应的块的源码的行号的信息。&lt;/li&gt;
   &lt;li&gt;.gcda是由加了-fprofile-arcs编译参数的编译后的文件运行所产生的，它包含了edge跳变的次数和其他的概要信息&lt;/li&gt;
 &lt;/ul&gt;

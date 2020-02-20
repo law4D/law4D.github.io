@@ -14,7 +14,7 @@
     <meta property="og:title" content="用GCOV和LCOV测程序覆盖率 - Law4D的博客 | Law4D Blog">
     
     <meta property="og:type" content="article">
-    <meta property="og:description" content="0x0. gcov和LCOV是什么？
+    <meta property="og:description" content="0x0. GCOV和LCOV是什么？
 ">
     
     <meta property="article:published_time" content="2020-02-19T20:12:00Z">
@@ -237,13 +237,13 @@
                 <!-- Multi-Lingual -->
                 
 
-				<h2 id="0x0-gcov和lcov是什么">0x0. gcov和LCOV是什么？</h2>
+				<h2 id="0x0-gcov和lcov是什么">0x0. GCOV和LCOV是什么？</h2>
 
 <p>GCOV是伴随gcc发布，用于执行测试用例生成代码覆盖率信息。</p>
 
 <ul>
   <li>在gcc编译和链接时加入-fprofile-arcs -ftest-coverage</li>
-  <li>gcov主要使用.gcno和.gcda两个文件</li>
+  <li>GCOV主要使用.gcno和.gcda两个文件</li>
   <li>.gcno是由-ftest-coverage产生的，它包含了重建基本块图和相应的块的源码的行号的信息。</li>
   <li>.gcda是由加了-fprofile-arcs编译参数的编译后的文件运行所产生的，它包含了edge跳变的次数和其他的概要信息</li>
 </ul>
